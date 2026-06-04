@@ -8,12 +8,13 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Resources\Resource as FilamentResource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
+
  
-class UserResource extends Resource
+class UserResource extends FilamentResource
 {
     protected static ?string $model           = User::class;
     protected static ?string $navigationIcon  = 'heroicon-o-users';
@@ -35,9 +36,9 @@ class UserResource extends Resource
                 Forms\Components\Select::make('role')->options(['admin' => 'Admin', 'user' => 'User'])
                     ->required()->default('user'),
                 Forms\Components\TextInput::make('password')->password()
-                    ->dehydrateStateUsing(fn($v) => filled($v) ? Hash::make($v) : null)
-                    ->dehydrated(fn($v) => filled($v))
-                    ->required(fn(string $op) => $op === 'create')
+                    ->dehydrateStateUsing(fn($state) => filled($state) ? Hash::make($state) : null)
+                    ->dehydrated(fn($state) => filled($state))
+                    ->required(fn(string $context) => $context === 'create')
                     ->helperText('Kosongkan untuk tidak mengubah password')
                     ->columnSpanFull(),
             ]),
@@ -52,7 +53,7 @@ class UserResource extends Resource
             Tables\Columns\TextColumn::make('email')->label('Email'),
             Tables\Columns\BadgeColumn::make('role')
                 ->colors(['danger' => 'admin', 'info' => 'user'])
-                ->formatStateUsing(fn($s) => ucfirst($s)),
+                ->formatStateUsing(fn(string $state) => ucfirst($state)),
             Tables\Columns\TextColumn::make('created_at')->label('Dibuat')->date('d/m/Y'),
         ])
         ->actions([

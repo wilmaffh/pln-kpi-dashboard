@@ -9,11 +9,12 @@ use App\Models\Semester;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Resources\Resource;
+use Filament\Resources\Resource as FilamentResource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class SemesterResource extends Resource
+
+class SemesterResource extends FilamentResource
 {
     protected static ?string $model             = Semester::class;
     protected static ?string $navigationIcon    = 'heroicon-o-calendar-days';
@@ -74,8 +75,8 @@ class SemesterResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('periode')
                     ->label('Periode')
-                    ->formatStateUsing(fn($s) => $s === 'JAN_JUN' ? 'Jan – Jun' : 'Jul – Des')
-                    ->color(fn($s) => $s === 'JAN_JUN' ? 'info' : 'warning'),
+                    ->formatStateUsing(fn(string $state) => $state === 'JAN_JUN' ? 'Jan – Jun' : 'Jul – Des')
+                    ->color(fn(string $state) => $state === 'JAN_JUN' ? 'info' : 'warning'),
 
                 Tables\Columns\TextColumn::make('tahun')->label('Tahun')->sortable(),
 

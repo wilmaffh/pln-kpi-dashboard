@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
 
             // ── Branding PLN ──────────────────────────────────────────────
             ->brandName('KPI Dashboard')
-            ->brandLogo(fn() => view('filament.brand'))
+            //->brandLogo(fn() => view('filament.brand'))
             ->favicon(asset('favicon.ico'))
 
             // ── Warna Tema: Merah PLN ─────────────────────────────────────
@@ -45,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             // ── Font ──────────────────────────────────────────────────────
-            ->font('Inter', provider: \Filament\Support\Assets\Font::class)
+            ->font('Inter')
 
             // ── Auth ──────────────────────────────────────────────────────
             ->login()

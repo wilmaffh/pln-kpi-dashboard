@@ -6,14 +6,14 @@ use App\Filament\Resources\JenisKpiResource\Pages;
 use App\Models\JenisKpi;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use Filament\Resources\Resource as FilamentResource;
 use Filament\Tables;
 use Filament\Tables\Table;
- 
-class JenisKpiResource extends Resource
+
+class JenisKpiResource extends FilamentResource
 {
     protected static ?string $model           = JenisKpi::class;
-    protected static ?string $navigationIcon  = 'heroicon-o-clipboard-document-list';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
     protected static ?string $navigationGroup = 'Master Data';
     protected static ?string $navigationLabel = 'Jenis KPI';
     protected static ?int    $navigationSort  = 2;
@@ -46,7 +46,7 @@ class JenisKpiResource extends Resource
             Tables\Columns\TextColumn::make('nama_kpi')->label('Nama KPI')->searchable(),
             Tables\Columns\TextColumn::make('kode_kpi')->label('Kode')->badge()->color('gray'),
             Tables\Columns\BadgeColumn::make('tipe_input')
-                ->formatStateUsing(fn($s) => $s === 'detail_form' ? 'Form Detail' : 'File Only')
+                ->formatStateUsing(fn(string $state) => $state === 'detail_form' ? 'Form Detail' : 'File Only')
                 ->colors(['success' => 'detail_form', 'warning' => 'file_only']),
             Tables\Columns\IconColumn::make('is_default')->label('Default?')->boolean(),
             Tables\Columns\IconColumn::make('is_active')->label('Aktif?')->boolean(),

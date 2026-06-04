@@ -8,13 +8,14 @@ use App\Models\{KpiSubmission, KpiSiaranPers, Semester, JenisKpi};
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
-use Filament\Resources\Resource;
+use Filament\Resources\Resource as FilamentResource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 
-class KpiSiaranPersResource extends Resource
+
+class KpiSiaranPersResource extends FilamentResource
 {
     protected static ?string $model           = KpiSubmission::class;
     protected static ?string $navigationIcon  = 'heroicon-o-newspaper';
@@ -51,7 +52,7 @@ class KpiSiaranPersResource extends Resource
                         ->options(Semester::where('is_active', true)->pluck('nama_semester', 'id'))
                         ->default($semAktif?->id)
                         ->required()
-                        ->disabled(fn(string $op) => $op === 'edit'),
+                        ->disabled(fn(string $context) => $context === 'edit'),
 
                     Forms\Components\Select::make('bulan_header')
                         ->label('Bulan Data')
@@ -137,7 +138,7 @@ class KpiSiaranPersResource extends Resource
 
                             Forms\Components\Placeholder::make('info_bypass')
                                 ->label('')
-                                ->content(\Illuminate\Support\HtmlString::make('
+                                ->content(new \Illuminate\Support\HtmlString(')
                                     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
                                         <strong>Gunakan opsi ini jika:</strong> data sudah ada di file Excel/PDF/ZIP rekap dan tidak ingin mengisi form satu per satu.
                                     </div>')),
@@ -174,8 +175,8 @@ class KpiSiaranPersResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('metode_input')
                     ->label('Metode')
-                    ->formatStateUsing(fn($s) => $s === 'detail_form' ? 'Form' : 'File')
-                    ->color(fn($s) => $s === 'detail_form' ? 'success' : 'warning'),
+                    ->formatStateUsing(fn(string $state) => $state === 'detail_form' ? 'Form' : 'File')
+                    ->color(fn(string $state) => $state === 'detail_form' ? 'success' : 'warning'),
 
                 Tables\Columns\TextColumn::make('siaranPers.judul_draft')
                     ->label('Judul Draft')
@@ -184,7 +185,7 @@ class KpiSiaranPersResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors(['warning' => 'draft', 'success' => 'submitted'])
-                    ->formatStateUsing(fn($s) => $s === 'draft' ? 'Draft' : 'Submitted'),
+                    ->formatStateUsing(fn(string $state) => $state === 'draft' ? 'Draft' : 'Submitted'),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')->date('d/m/Y')->sortable(),
