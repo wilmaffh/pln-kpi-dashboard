@@ -7,10 +7,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOne, HasMany};
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
  
-class KpiSubmission extends Model
+class KpiSubmission extends Model implements HasMedia
 {
     use SoftDeletes;
+    use InteractsWithMedia;
  
     protected $fillable = [
         'semester_id', 'jenis_kpi_id', 'user_id',
@@ -32,6 +35,12 @@ class KpiSubmission extends Model
     public function isSubmitted(): bool    { return $this->status === 'submitted'; }
     public function isDraft(): bool        { return $this->status === 'draft'; }
     public function canEdit(): bool        { return $this->status === 'draft'; }
+ 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('eviden_pengiriman');
+        $this->addMediaCollection('bypass_files');
+    }
  
     public function getStatusColorAttribute(): string
     {

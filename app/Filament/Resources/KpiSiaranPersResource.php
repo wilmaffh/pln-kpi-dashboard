@@ -215,9 +215,33 @@ class KpiSiaranPersResource extends FilamentResource
                     ->visible(fn(KpiSubmission $r) => $r->canEdit()),
             ])
             ->headerActions([
-                Tables\Actions\ExportAction::make()
+                Tables\Actions\Action::make('export_excel')
                     ->label('Export Excel')
-                    ->exporter(\App\Filament\Exports\KpiSiaranPersExporter::class)
+                    ->icon('heroicon-m-arrow-down-tray')
+                    ->action(function () {
+                        $submissions = KpiSubmission::with('semester', 'user', 'siaranPers')
+                            ->orderByDesc('created_at')
+                            ->get();
+                        
+                        $data = $submissions->map(function ($submission) {
+                            return [
+                                'ID' => $submission->id,
+                                'Semester' => $submission->semester?->nama_semester,
+                                'Diisi Oleh' => $submission->user?->name,
+                                'Metode Input' => $submission->metode_input,
+                                'Judul Draft' => $submission->siaranPers?->judul_draft,
+                                'Teks Draft Release' => $submission->siaranPers?->teks_draft_release,
+                                'Platform' => $submission->siaranPers?->platform_pengiriman,
+                                'Status' => $submission->status,
+                                'Dibuat' => $submission->created_at?->format('Y-m-d H:i:s'),
+                            ];
+                        });
+                        
+                        return \Maatwebsite\Excel\Facades\Excel::download(
+                            new \App\Exports\KpiSiaranPersCollectionExport($data),
+                            'kpi-submissions-' . now()->format('Y-m-d-His') . '.xlsx'
+                        );
+                    })
                     ->visible(fn() => auth()->user()?->isAdmin()),
             ])
             ->defaultSort('created_at', 'desc');
@@ -236,6 +260,7 @@ class KpiSiaranPersResource extends FilamentResource
 
 namespace App\Filament\Resources\KpiSiaranPersResource\Pages;
 use App\Filament\Resources\KpiSiaranPersResource;
+use App\Models\{KpiSubmission, Semester, JenisKpi};
 use Filament\Actions;
 use Filament\Resources\Pages\{ListRecords, CreateRecord, EditRecord, ViewRecord};
 class ListKpiSiaranPers extends ListRecords {
@@ -244,6 +269,22 @@ class ListKpiSiaranPers extends ListRecords {
 }
 class CreateKpiSiaranPers extends CreateRecord {
     protected static string $resource = KpiSiaranPersResource::class;
+
+    public function mount(): void
+    {
+        parent::mount();
+        
+        $existing = KpiSubmission::where([
+            'user_id' => auth()->id(),
+            'semester_id' => Semester::getActive()?->id,
+            'jenis_kpi_id' => JenisKpi::where('kode_kpi', 'siaran_pers')->value('id'),
+        ])->first();
+        
+        if ($existing) {
+            $this->redirect($this->getResource()::getUrl('edit', ['record' => $existing]));
+        }
+    }
+
     protected function getRedirectUrl(): string { return $this->getResource()::getUrl('index'); }
 }
 class EditKpiSiaranPers extends EditRecord {
